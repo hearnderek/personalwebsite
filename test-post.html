@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+		<title>test-api</title>
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<style>
+html, body{
+	height: 100%;
+}
+#main {
+	height:90%;
+	margin:10px;
+	padding-left: 5%;
+	padding:0 0 20px;
+}
+element.style {
+	font-size:15px;
+}
+.notes {
+}
+textarea {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:large;
+	height:100%;
+	margin:0;
+	outline:none;
+	padding-left:50px;
+	padding-top:3px;
+	width:calc(100% - 55px);
+	overflow:hidden;
+	resize:none;
+
+}
+		</style>
+	</head>
+	<body>
+
+		<div id='main'>
+			<button type="button" class="btn btn-primary" onclick="MyFunc()">Save</button>
+			<textarea id="myTextArea" name="S1" autofocus="" class="notes" spellcheck="false">
+		</textarea>
+		</div>
+
+		<!-- <textarea id="myTextArea" rows = "3" cols = "80"> Your text here </textarea> -->
+
+		<script>
+var id = decodeURI(location.search.split('id=')[1]);
+var textArea = document.getElementById('myTextArea');
+textArea.addEventListener('keydown', autosize);
+
+if(id == null || id == "undefined") {
+	NewId();
+} else {
+	GetData();
+}
+
+function NewId() {
+	const xhr = new XMLHttpRequest();
+	const url = window.location.origin + '/redis/new';
+	xhr.open("GET", url);
+	xhr.send();
+
+	xhr.onreadystatechange = (e) => {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+			console.log(xhr.responseText);
+			id = xhr.responseText;
+			window.location.href += '?id=' + id
+		}
+	}
+}
+
+function GetData() {
+	const xhr = new XMLHttpRequest();
+	const url = window.location.origin + '/redis/?search=' + id;
+	xhr.open("GET", url);
+	xhr.send();
+
+	xhr.onreadystatechange = (e) => {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+			console.log(xhr.responseText);
+			textArea.value = JSON.parse(xhr.responseText)[id];
+			autosizeElement(textArea);
+		}
+	}
+}
+
+function MyFunc() {
+	var data = {}
+	if(id != null){
+		data.key = id;
+	}
+	data.payload = textArea.value;
+
+	var url = window.location.origin + '/redis/update';
+	var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+			id = JSON.parse(xhr.response).id;
+			console.log(id);
+		}
+	}
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+	xhr.send(JSON.stringify(data));
+	console.log(xhr)
+}
+
+function autosizeElement(el){
+	setTimeout(function(){
+		//el.style.cssText = 'height:auto; padding:0';
+		// for box-sizing other than "content-box" use:
+		el.style.cssText = '-moz-box-sizing:content-box';
+		el.style.cssText = 'height:' + el.scrollHeight + 'px';
+	},0);
+}
+             
+function autosize(){
+	var el = this;
+	autosizeElement(el);
+}
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+		<title>test-api</title>
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+	</head>
+	<body>
+		<div id='stuff'>
+		</div>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script>
+
+var url = window.location.origin + '/get/api?search=連絡';
+
+$.get(url, null, function(data){
+	var s = document.getElementById('stuff');
+	var pt = document.createElement('plaintext');
+	var tn = document.createTextNode(data);
+	pt.appendChild(tn);
+	s.appendChild(pt);
+	console.log(data);
+});
+		</script>
+
+	</body>
+</html>

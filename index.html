@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>コト検索</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+		<script>
+		</script>
+	</head>
+	<body>
+
+		<div class="container">
+			<form>
+				コト検索<br>
+				<input type="text" class="form-control" id="usr" name="Search">
+			</form>
+
+			<h2 class='text-center' id='word' style='color: rgb(0, 132, 5);'> </h2>
+
+			<ul id='results'>
+			</ul>
+
+			<h4 id='kotobank'></h4>
+			<h4 id='weblio'></h4>
+			<h4 id='wikipedia'></h4>
+			<h4 id='jisho'></h4>
+			<h4 id='multiview'></h4>
+
+			<div id='stuff'></div>
+
+		</div>
+
+	</body>
+
+	<script>
+
+var results = document.getElementById('results');
+var readings = document.getElementById('readings');
+var word = `$WORD`;
+
+function setSearch(el,url,name){
+	var xDiv = document.getElementById(el);
+	var xSearch = url;
+	var xCopy = 'Search "' + word + '" on ' + name;
+	var xA = document.createElement('a');
+	var xText = document.createTextNode(xCopy);
+	xA.appendChild(xText);
+	xA.title = xCopy;
+	xA.href = xSearch + word;
+	xDiv.appendChild(xA);
+}
+function setJisho(){
+	setSearch('jisho', 'https://jisho.org/search/', 'Jisho.org');
+}
+function setKotobank(){
+	setSearch('kotobank', 'https://kotobank.jp/word/', 'コトバンク');
+}
+function setWeblio(){
+	setSearch('weblio', 'https://www.weblio.jp/content/', 'Weblio');
+}
+function setWikipedia(){
+	setSearch('wikipedia', 'https://ja.wikipedia.org/w/index.php?search=', 'ウィキペディア');
+}
+function setMultiview(){
+	x = window.location.href.indexOf('?')
+		y = window.location.href.substring(0,x) 
+		console.log(y)
+		z = window.location.href.substring(x) 
+		console.log(z)
+
+		var xDiv = document.getElementById('multiview');
+	var xCopy = 'View all results on the same page';
+	var xA = document.createElement('a');
+	var xText = document.createTextNode(xCopy);
+	xA.appendChild(xText);
+	xA.title = xCopy;
+	xA.href = y + 'multiview.html' + z;
+	xDiv.appendChild(xA);
+}
+
+
+if(word == '$' + 'WORD'){
+	if(location.search.indexOf('Search=') != -1) {
+		word = decodeURI(location.search.split('Search=')[1]);
+		document.title += ': ' + word;
+
+		var url = window.location.origin + '/get/api?search='+word;
+		$.get(url, null, function(data){
+			// split text by lines
+			var splits = data.trim().split("\n");
+			for(var i=0;i<splits.length; i++) {
+				var txt = splits[i].trim();
+				// ignore whitespace lines
+				if(!(/^\s*$/.test(txt))){
+					var difficulty = txt.substring(0,4);
+					txt = txt.substring(5);
+					if(txt == word){
+						continue;
+					}
+
+					var li = document.createElement("LI");
+					var p = document.createElement("p");
+					p.style.cssText = 'color: black';
+					li.style.cssText = `color: rgb(${difficulty*255},${255-difficulty*255},0)`;
+					var txtSplits = txt.split(word);
+					for(var j=0; j<txtSplits.length-1; j++){
+						var t = document.createTextNode(txtSplits[j]);
+						var span = document.createElement("span");
+						span.style.cssText = 'color: rgb(0, 132, 5);';
+						var st = document.createTextNode(word);
+						p.appendChild(t);
+						span.appendChild(st);
+						p.appendChild(span);
+					}
+					var t = document.createTextNode(txtSplits[txtSplits.length-1]);
+					p.appendChild(t);
+					li.appendChild(p);
+					results.appendChild(li);
+				}
+			}
+		});
+		setKotobank();
+		setWeblio();
+		setWikipedia();
+		setJisho();
+		setMultiview();
+	}
+}
+
+
+	</script>
+</html>

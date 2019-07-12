@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+	<style>
+
+.sidenav {
+	position: fixed;
+	z-index: 1;
+	top: 20px;
+	left: 10px;
+	width:140;
+	overflow-x: hidden;
+	padding: 8px 0;
+}
+
+
+.main {
+	margin-left: 140px; /* Same width as the sidebar + left position in px */
+	font-size: 28px; /* Increased text to enable scrolling */
+	padding: 0px 10px;
+	background: black;
+}
+	</style>
+	<head>
+		<title>英語検索</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+
+		<div id="sidenav" class="sidenav" >
+			<form class = '' >
+				<h2 class='form-text' id='word' style='color: black; width:140px;'> 英語検索 </h2>
+				<input type="text" class="form-control" id="usr" name="Search" style='width:120px;'>
+			</form>
+
+
+		</div>
+		<div id="main" class="main">
+		</div>
+
+	</body>
+
+	<script>
+var sn = document.getElementById('sidenav');
+var main = document.getElementById('main');
+var word = `$WORD`;
+
+window.scrollTo = function () {};
+
+function setSearch(el,url,name){
+	var xSearch = url;
+
+	var anchor = document.createElement('a');
+	anchor.setAttribute('name', el);
+	main.appendChild(anchor);
+
+	var ifrm = document.createElement('iframe');
+	ifrm.setAttribute('src', xSearch);
+	ifrm.style.width = "100%";
+	ifrm.style.height = "520px";
+	ifrm.onLoad = 'self.scrollTo(0,0)';
+	main.appendChild(ifrm);
+
+	var alink = document.createElement('a');
+	var br = document.createElement('br');
+	alink.setAttribute('href', '#'+el);
+	alink.text = name;
+	sn.appendChild(alink);
+	sn.appendChild(br);
+}
+function setDictionary(){
+	setSearch('dictionary', 'https://www.dictionary.com/browse/'+word, 'Dictionary.com');
+}
+function setJisho(){
+	setSearch('jisho', 'https://jisho.org/search/'+word, 'Jisho.org');
+}
+function setGoo(){
+	setSearch('goo', 'https://dictionary.goo.ne.jp/word/en/'+word, 'goo');
+}
+function setWeblio(){
+	setSearch('weblio', 'https://ejje.weblio.jp/content/'+word.toLowerCase(), 'Weblio');
+}
+function setWikipedia(){
+	setSearch('wikipedia', 'https://en.wikipedia.org/w/index.php?search='+word, 'Wikipedia');
+}
+
+if(word == '$' + 'WORD'){
+	if(location.search.indexOf('Search=') != -1) {
+		word = decodeURI(location.search.split('Search=')[1]);
+		setDictionary();
+		setGoo();
+		setWeblio();
+		setWikipedia();
+		setJisho();
+		document.title += ': ' + word;
+	}
+}
+
+
+	</script>
+</html>
