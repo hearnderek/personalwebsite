@@ -27,65 +27,29 @@
     const id = '965f9d11dde1433ba574e3cd82745223'
     const today = new Date();
 
-    function NewEntryElement(entry) {
-
+    function NewCardDeck (entries) {
         const d = document.getElementById('list');
-        const li = document.createElement('li');
-
-
-        //const lastDateString = entry['dates'].slice(-1)[0];
-        const dueDate = entry['dueDate'];
-        const lastDate = entry['lastDate'];
-        const timesStudied = entry['dates'].length;
-
-        const a = document.createElement('a');
-        const copy = dueDate.toLocaleDateString();
-        a.appendChild(document.createTextNode(copy));
-        a.href = entry['link'];
-        if(today > dueDate) {
-            a.className = 'btn btn-primary shadow stretched-link'
-        } else {
-            a.className = 'btn btn-secondary shadow-sm stretched-link'
-
+        const cardDeck = document.createElement('div');
+        cardDeck.className = 'card-group';
+        
+        for (let i = 0; i < entries.length; i++) {
+            const lastDateString = entries[i]['dates'].slice(-1)[0];
+            entries[i]['lastDate'] = new Date(lastDateString.slice(0, 4) + '-' + lastDateString.slice(4,
+                6) + '-' + lastDateString.slice(6));
+            let dueDate = new Date(entries[i]['lastDate']);
+            dueDate.setDate(dueDate.getDate() + 14);
+            entries[i]['dueDate'] = dueDate;
         }
-        li.appendChild(a);
 
-        const d1 = document.createElement('div');
-        d1.appendChild(document.createTextNode('Due: ' + dueDate.toLocaleDateString()));
-        li.appendChild(d1);
+        entries.sort((l, r) => l['dueDate'] - r['dueDate'])
 
-        const d2 = document.createElement('div');
-        d2.appendChild(document.createTextNode('Times: ' + timesStudied));
-        li.appendChild(d2);
-
-        const d3 = document.createElement('div');
-        d3.appendChild(document.createTextNode('Last Studied: ' + lastDate.toLocaleDateString()));
-        li.appendChild(d3);
-
-        d.appendChild(li);
-
-
+        for (let i = 0; i < entries.length; i++) {
+            cardDeck.appendChild(NewEntryCard(entries[i]));
+        }
+        d.appendChild(cardDeck);
     }
 
     function NewEntryCard(entry) {
-    
-        
-        const d = document.getElementById('list');
-        const cardGroup = document.createElement('div');
-        cardGroup.className = 'card-group';
-
-        /*
-<div class="card" style="width: 18rem;">
-  <img src="..." class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card with stretched link</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary stretched-link">Go somewhere</a>
-  </div>
-</div>
-        */
-
-        //const lastDateString = entry['dates'].slice(-1)[0];
         const dueDate = entry['dueDate'];
         const lastDate = entry['lastDate'];
         const timesStudied = entry['dates'].length;
@@ -102,9 +66,9 @@
         a.appendChild(document.createTextNode(copy));
         a.href = entry['link'];
         if(today > dueDate) {
-            a.className = 'btn btn-primary shadow stretched-link'
+            a.className = 'btn btn-warning shadow stretched-link'
         } else {
-            a.className = 'btn btn-secondary shadow-sm stretched-link'
+            a.className = 'btn btn-primary shadow-sm stretched-link'
 
         }
         cardBody.appendChild(a);
@@ -121,10 +85,7 @@
         d3.appendChild(document.createTextNode('Last Studied: ' + lastDate.toLocaleDateString()));
         cardBody.appendChild(d3);
 
-        cardGroup.appendChild(card);
-        d.appendChild(cardGroup);
-
-    
+        return card;
     }
 
     function GetData() {
@@ -140,20 +101,7 @@
 
                 titleHr.innerText = valueHash['name'];
                 let entries = valueHash['entries'];
-                for (let i = 0; i < entries.length; i++) {
-                    const lastDateString = entries[i]['dates'].slice(-1)[0];
-                    entries[i]['lastDate'] = new Date(lastDateString.slice(0, 4) + '-' + lastDateString.slice(4,
-                        6) + '-' + lastDateString.slice(6));
-                    let dueDate = new Date(entries[i]['lastDate']);
-                    dueDate.setDate(dueDate.getDate() + 14);
-                    entries[i]['dueDate'] = dueDate;
-                }
-
-                entries.sort((l, r) => l['dueDate'] - r['dueDate'])
-
-                for (let i = 0; i < entries.length; i++) {
-                    NewEntryCard(entries[i]);
-                }
+                NewCardDeck(entries);
             }
         }
     }
