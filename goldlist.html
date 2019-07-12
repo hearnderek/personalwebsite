@@ -10,11 +10,20 @@
     <title>Document</title>
 </head>
 
-<body>
+<body>    
     <div class="container">
-        <h1 id='titleHr'> Hello world! </h1>
-        <ul id='list'>
-        </ul>
+        <nav id='titleHr' class="navbar navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Gold List</a>
+        </nav>
+
+        <div id='list'>
+        </div>
+
+        <button type="button" class="btn btn-success" onclick="NewEntry()"> I'm a button! </button>
+
+        <a class='btn btn-primary btn-lg' href='https://derekhearn.com/notepad.html?id=965f9d11dde1433ba574e3cd82745223'>
+            Edit JSON Directly
+        </a>
     </div>
 
 </body>
@@ -22,23 +31,65 @@
 
 <script>
     const api = location.origin + '/';
-    const redisPath = api + 'redis/'
+    const redisPath = api + 'redis/';
+    const notepadPath = location.origin + '/notepad.html';
     const titleHr = document.getElementById('titleHr');
-    const id = '965f9d11dde1433ba574e3cd82745223'
+    const id = '965f9d11dde1433ba574e3cd82745223';
     const today = new Date();
+
+
+    function NewEntry() {
+        
+        // Get new ID
+        const xhr = new XMLHttpRequest();
+        const url = redisPath + 'new';
+        xhr.open("GET", url);
+        xhr.send();
+
+        xhr.onreadystatechange = (e) => {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+
+                const id = xhr.responseText;
+                const today = new Date();
+                let month = (today.getMonth()+1).toString();
+                let day = today.getDay().toString();
+                if (month.length < 2) month = '0' + month;
+                if (day.length < 2) day = '0' + day;
+                const entry = {
+                    'dates':[today.getFullYear().toString() + month + day],
+                    'link': notepadPath + '?id=' + id
+                };
+                console.log(entry);
+                AddEventHashes(entry);
+                entry['buttonText'] = 'New Entry!';
+
+                console.log(entry);
+
+                const card = NewEntryCard(entry);
+                const deck = document.getElementById('deck');
+                deck.appendChild(card);
+            }
+        }
+    }
+
+    function AddEventHashes(entry){
+        const lastDateString = entry['dates'].slice(-1)[0];
+            entry['lastDate'] = new Date(lastDateString.slice(0, 4) + '-' + lastDateString.slice(4,
+                6) + '-' + lastDateString.slice(6));
+            let dueDate = new Date(entry['lastDate']);
+            dueDate.setDate(dueDate.getDate() + 14);
+            entry['dueDate'] = dueDate;
+            entry['buttonText'] = dueDate.toLocaleDateString();
+    }
 
     function NewCardDeck (entries) {
         const d = document.getElementById('list');
         const cardDeck = document.createElement('div');
+        cardDeck.id = 'deck';
         cardDeck.className = 'card-group';
         
         for (let i = 0; i < entries.length; i++) {
-            const lastDateString = entries[i]['dates'].slice(-1)[0];
-            entries[i]['lastDate'] = new Date(lastDateString.slice(0, 4) + '-' + lastDateString.slice(4,
-                6) + '-' + lastDateString.slice(6));
-            let dueDate = new Date(entries[i]['lastDate']);
-            dueDate.setDate(dueDate.getDate() + 14);
-            entries[i]['dueDate'] = dueDate;
+            AddEventHashes(entries[i]);
         }
 
         entries.sort((l, r) => l['dueDate'] - r['dueDate'])
@@ -62,7 +113,7 @@
         card.append(cardBody);
 
         const a = document.createElement('a');
-        const copy = dueDate.toLocaleDateString();
+        const copy = entry['buttonText'];
         a.appendChild(document.createTextNode(copy));
         a.href = entry['link'];
         if(today > dueDate) {
@@ -97,9 +148,7 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 const value = JSON.parse(xhr.responseText)[id];
                 const valueHash = JSON.parse(value);
-                console.log(valueHash);
 
-                titleHr.innerText = valueHash['name'];
                 let entries = valueHash['entries'];
                 NewCardDeck(entries);
             }
