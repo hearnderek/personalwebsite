@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id='titleHr'> Hello world! </h1>
+        <ul id='list'>
+        </ul>
+    </div>
+
+</body>
+
+
+<script>
+    const api = location.origin + '/';
+    const redisPath = api + 'redis/'
+    const titleHr = document.getElementById('titleHr');
+    const id = '965f9d11dde1433ba574e3cd82745223'
+    const today = new Date();
+
+    function NewEntryElement(entry) {
+
+        const d = document.getElementById('list');
+        const li = document.createElement('li');
+
+
+        //const lastDateString = entry['dates'].slice(-1)[0];
+        const dueDate = entry['dueDate'];
+        const lastDate = entry['lastDate'];
+        const timesStudied = entry['dates'].length;
+
+        const a = document.createElement('a');
+        const copy = dueDate.toLocaleDateString();
+        a.appendChild(document.createTextNode(copy));
+        a.href = entry['link'];
+        if(today > dueDate) {
+            a.className = 'btn btn-primary shadow stretched-link'
+        } else {
+            a.className = 'btn btn-secondary shadow-sm stretched-link'
+
+        }
+        li.appendChild(a);
+
+        const d1 = document.createElement('div');
+        d1.appendChild(document.createTextNode('Due: ' + dueDate.toLocaleDateString()));
+        li.appendChild(d1);
+
+        const d2 = document.createElement('div');
+        d2.appendChild(document.createTextNode('Times: ' + timesStudied));
+        li.appendChild(d2);
+
+        const d3 = document.createElement('div');
+        d3.appendChild(document.createTextNode('Last Studied: ' + lastDate.toLocaleDateString()));
+        li.appendChild(d3);
+
+        d.appendChild(li);
+
+
+    }
+
+    function NewEntryCard(entry) {
+    
+        
+        const d = document.getElementById('list');
+        const cardGroup = document.createElement('div');
+        cardGroup.className = 'card-group';
+
+        /*
+<div class="card" style="width: 18rem;">
+  <img src="..." class="card-img-top" alt="...">
+  <div class="card-body">
+    <h5 class="card-title">Card with stretched link</h5>
+    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    <a href="#" class="btn btn-primary stretched-link">Go somewhere</a>
+  </div>
+</div>
+        */
+
+        //const lastDateString = entry['dates'].slice(-1)[0];
+        const dueDate = entry['dueDate'];
+        const lastDate = entry['lastDate'];
+        const timesStudied = entry['dates'].length;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        card.append(cardBody);
+
+        const a = document.createElement('a');
+        const copy = dueDate.toLocaleDateString();
+        a.appendChild(document.createTextNode(copy));
+        a.href = entry['link'];
+        if(today > dueDate) {
+            a.className = 'btn btn-primary shadow stretched-link'
+        } else {
+            a.className = 'btn btn-secondary shadow-sm stretched-link'
+
+        }
+        cardBody.appendChild(a);
+
+        const d1 = document.createElement('div');
+        d1.appendChild(document.createTextNode('Due: ' + dueDate.toLocaleDateString()));
+        cardBody.appendChild(d1);
+
+        const d2 = document.createElement('div');
+        d2.appendChild(document.createTextNode('Times: ' + timesStudied));
+        cardBody.appendChild(d2);
+
+        const d3 = document.createElement('div');
+        d3.appendChild(document.createTextNode('Last Studied: ' + lastDate.toLocaleDateString()));
+        cardBody.appendChild(d3);
+
+        cardGroup.appendChild(card);
+        d.appendChild(cardGroup);
+
+    
+    }
+
+    function GetData() {
+        const xhr = new XMLHttpRequest();
+        const url = redisPath + '?search=' + id;
+        xhr.open("GET", url);
+        xhr.send();
+        xhr.onreadystatechange = (e) => {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                const value = JSON.parse(xhr.responseText)[id];
+                const valueHash = JSON.parse(value);
+                console.log(valueHash);
+
+                titleHr.innerText = valueHash['name'];
+                let entries = valueHash['entries'];
+                for (let i = 0; i < entries.length; i++) {
+                    const lastDateString = entries[i]['dates'].slice(-1)[0];
+                    entries[i]['lastDate'] = new Date(lastDateString.slice(0, 4) + '-' + lastDateString.slice(4,
+                        6) + '-' + lastDateString.slice(6));
+                    let dueDate = new Date(entries[i]['lastDate']);
+                    dueDate.setDate(dueDate.getDate() + 14);
+                    entries[i]['dueDate'] = dueDate;
+                }
+
+                entries.sort((l, r) => l['dueDate'] - r['dueDate'])
+
+                for (let i = 0; i < entries.length; i++) {
+                    NewEntryCard(entries[i]);
+                }
+            }
+        }
+    }
+
+    GetData();
+</script>
+
+
+</html>
