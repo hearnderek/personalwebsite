@@ -126,7 +126,9 @@
         cardBody.className = 'card-body';
         card.append(cardBody);
 
+        // BUTTON
         const a = document.createElement('a');
+        
         const copy = entry['buttonText'];
         a.appendChild(document.createTextNode(copy));
         a.href = entry['link'];
@@ -136,7 +138,14 @@
             a.className = 'btn btn-dark shadow-sm stretched-link'
 
         }
+
+        const s0 = document.createElement('span');
+        s0.className = 'badge pil badge-light text-right ml-2'
+        s0.appendChild(document.createTextNode(entry['#']));
+        a.appendChild(s0);
+
         cardBody.appendChild(a);
+        // END BUTTON
 
         const d1 = document.createElement('div');
         d1.appendChild(document.createTextNode('Due: ' + dueDate.toLocaleDateString()));
