@@ -9,19 +9,29 @@
 
     <title>Document</title>
 </head>
+<style type="text/css">
+.hover {
+    transition: 0.3s;
+}
+
+.hover:hover {
+    background-color: silver;
+}
+</style>
 
 <body>    
     <div class="container">
         <nav id='titleHr' class="navbar navbar-dark bg-dark">
             <a class="navbar-brand" href="#">Gold List</a>
+            <h2><span id='nav_date' class="badge badge-light"></span></h2>
         </nav>
 
         <div id='list'>
         </div>
 
-        <button type="button" class="btn btn-success" onclick="NewEntry()"> I'm a button! </button>
+        <button type="button" class="btn btn-dark btn-lg" onclick="NewEntry()"> New Entry </button>
 
-        <a class='btn btn-primary btn-lg' href='https://derekhearn.com/notepad.html?id=965f9d11dde1433ba574e3cd82745223'>
+        <a class='btn btn-dark btn-lg' href='https://derekhearn.com/notepad.html?id=965f9d11dde1433ba574e3cd82745223'>
             Edit JSON Directly
         </a>
     </div>
@@ -36,6 +46,8 @@
     const titleHr = document.getElementById('titleHr');
     const id = '965f9d11dde1433ba574e3cd82745223';
     const today = new Date();
+
+    document.getElementById('nav_date').innerText = today.toLocaleDateString();
 
 
     function NewEntry() {
@@ -98,6 +110,8 @@
             cardDeck.appendChild(NewEntryCard(entries[i]));
         }
         d.appendChild(cardDeck);
+
+        
     }
 
     function NewEntryCard(entry) {
@@ -106,7 +120,7 @@
         const timesStudied = entry['dates'].length;
 
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card hover';
 
         const cardBody = document.createElement('div');
         cardBody.className = 'card-body';
@@ -119,7 +133,7 @@
         if(today > dueDate) {
             a.className = 'btn btn-warning shadow stretched-link'
         } else {
-            a.className = 'btn btn-primary shadow-sm stretched-link'
+            a.className = 'btn btn-dark shadow-sm stretched-link'
 
         }
         cardBody.appendChild(a);
