@@ -15,6 +15,10 @@
         box-sizing: border-box;
     }
 
+    .card {
+        min-width: 15%;
+    }
+
     .hover {
         transition: 0.3s;
     }
@@ -67,12 +71,14 @@
 
 
 <script>
+    let jsonPayload = null;
     const api = location.origin + '/';
     const redisPath = api + 'redis/';
     const notepadPath = location.origin + '/notepad.html';
     const titleHr = document.getElementById('titleHr');
     const id = '965f9d11dde1433ba574e3cd82745223';
-    const today = new Date();
+    let today = new Date();
+    today.setHours(0,0,0,0);
 
     document.getElementById('nav_date').innerText = today.toLocaleDateString();
 
@@ -91,7 +97,7 @@
                 const id = xhr.responseText;
                 const today = new Date();
                 let month = (today.getMonth() + 1).toString();
-                let day = today.getDay().toString();
+                let day = today.getDate().toString();
                 if (month.length < 2) month = '0' + month;
                 if (day.length < 2) day = '0' + day;
                 const entry = {
@@ -101,6 +107,7 @@
                 console.log(entry);
                 AddEventHashes(entry);
                 entry['buttonText'] = 'New Entry!';
+                entry['#'] = jsonPayload['entries'].length + 1;
 
                 console.log(entry);
 
@@ -144,6 +151,8 @@
     function NewEntryCard(entry) {
         const dueDate = entry['dueDate'];
         const lastDate = entry['lastDate'];
+        dueDate.setHours(0,0,0,0);
+        lastDate.setHours(0,0,0,0);
         const timesStudied = entry['dates'].length;
 
         const card = document.createElement('div');
@@ -161,8 +170,12 @@
         a.href = entry['link'];
         if (today > dueDate) {
             a.className = 'btn btn-warning shadow stretched-link'
-        } else {
+        } else if (lastDate < today) {
+            console.log(lastDate);
+            console.log(today);
             a.className = 'btn btn-dark shadow-sm stretched-link'
+        } else {
+            a.className = 'btn btn-success shadow-sm stretched-link'
         }
 
         const s0 = document.createElement('span');
@@ -197,6 +210,7 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 const value = JSON.parse(xhr.responseText)[id];
                 const valueHash = JSON.parse(value);
+                jsonPayload = valueHash;
 
                 let entries = valueHash['entries'];
                 NewCardDeck(entries);
