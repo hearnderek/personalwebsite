@@ -55,6 +55,11 @@
             </a>
         </div>
 
+        <form id='typeForm' class='mt-3' onsubmit="return checkTyped() && false">
+            <h2 id='typeMe' class='mx-auto text-center'></h2>
+            <input id='typeInMe' class='text-center' style='width:100%; font-size:2em;'></textarea>
+        </form>
+
         <footer class="footer mt-3 font-weight-light">
             <div class="pr-xl-4">
                 <p>What is the Gold List Method?</p>
@@ -64,11 +69,48 @@
             </div>
         </footer>
 
+        
+
 
     </div>
 
 </body>
 
+<script>
+
+kanjiUsageWordList = 'https://derekhearn.com/notepad.html?id=84dbc388568743b08c5b7fff9a083c02'
+let words = [
+    ['預かる','あずかる'],
+    ['埋める','うめる'],
+    ['敬う','うやまう'],
+    ['驚く','おどろく'],
+    ['抱える','かかえる'],
+    ['恐れる','おそれる'],
+    ['降ろす','おろす'],
+    ['補う','おぎなう'],
+    ['傾く','かたむく'],
+    ['踊る','おどる']
+]
+
+const typeForm = document.getElementById('typeForm');
+const typeMe = document.getElementById('typeMe');
+const typeInMe = document.getElementById('typeInMe');
+let wordIndex = 0;
+typeMe.innerText = words[wordIndex][0];
+
+function checkTyped(){
+    console.log(typeInMe.value)
+    if(typeInMe.value == words[wordIndex][0]) {
+        wordIndex++;
+        typeMe.innerText = words[wordIndex][0];
+        typeForm.reset();
+    }
+
+    // keeps the page from refreshing when used with the form's onsumbit event
+    return false;
+}
+
+</script>
 
 <script>
     let jsonPayload = null;
