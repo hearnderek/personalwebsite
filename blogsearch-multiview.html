@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+	.sidenav {
+		position: fixed;
+		z-index: 1;
+		top: 20px;
+		left: 10px;
+		width: 140;
+		overflow-x: hidden;
+		padding: 8px 0;
+	}
+
+
+	.main {
+		margin-left: 140px;
+		/* Same width as the sidebar + left position in px */
+		font-size: 28px;
+		/* Increased text to enable scrolling */
+		padding: 0px 10px;
+		background:snow;
+	}
+</style>
+
+<head>
+	<title>ブログ検索</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+	<div id="sidenav" class="sidenav">
+		<form class=''>
+			<h2 class='form-text' id='word' style='color: black; width:140px;'> 言葉検索 </h2>
+			<input type="text" class="form-control" id="usr" name="Search" style='width:120px;'>
+		</form>
+
+
+	</div>
+	<div id="main" class="main">
+	</div>
+
+</body>
+
+<script>
+	var sn = document.getElementById('sidenav');
+	var main = document.getElementById('main');
+	var word = `$WORD`;
+
+	class Site {
+		constructor(simpleName, searchUrl, displayName) {
+			this.simpleName = simpleName;
+			this.searchUrl = searchUrl;
+			this.displayName = displayName;
+		}
+
+		buildSearchUrl(searchTerm) {
+			if(this.searchUrl.indexOf('{}') != -1) {
+				return this.searchUrl.replace('{}',searchTerm);
+			} else {
+				return this.searchUrl + searchTerm
+			}
+		}
+	}
+
+	var sources = [
+		new Site('ameburo', 'https://search.ameba.jp/search/{}.html', 'Twitter'),
+		new Site('fc2', 'https://search.fc2.com/?q={}&n=1&charset=utf-8', 'FC2')
+		
+	]
+	window.scrollTo = function () {};
+
+	function setSearch(source) {
+
+		var anchor = document.createElement('a');
+		anchor.setAttribute('name', source.simpleName);
+		main.appendChild(anchor);
+
+		var ifrm = document.createElement('iframe');
+		ifrm.setAttribute('src', source.buildSearchUrl(word));
+		ifrm.style.width = "100%";
+		ifrm.style.height = "520px";
+		ifrm.onLoad = 'self.scrollTo(0,0)';
+		main.appendChild(ifrm);
+
+		var alink = document.createElement('a');
+		var br = document.createElement('br');
+		alink.setAttribute('href', '#' + source.simpleName);
+		alink.text = source.displayName;
+		sn.appendChild(alink);
+		sn.appendChild(br);
+	}
+
+	if (word == '$' + 'WORD') {
+		if (location.search.indexOf('Search=') != -1) {
+			word = decodeURI(location.search.split('Search=')[1]);
+
+			sources.forEach(setSearch);
+
+			document.title += ': ' + word;
+		}
+	}
+</script>
+
+</html>
