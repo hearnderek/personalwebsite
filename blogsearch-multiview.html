@@ -48,9 +48,9 @@
 </body>
 
 <script>
-	var sn = document.getElementById('sidenav');
-	var main = document.getElementById('main');
-	var word = `$WORD`;
+	let sn = document.getElementById('sidenav');
+	let main = document.getElementById('main');
+	let word = `$WORD`;
 
 	class Site {
 		constructor(simpleName, searchUrl, displayName) {
@@ -68,28 +68,27 @@
 		}
 	}
 
-	var sources = [
-		new Site('ameburo', 'https://search.ameba.jp/search/{}.html', 'Twitter'),
-		new Site('fc2', 'https://search.fc2.com/?q={}&n=1&charset=utf-8', 'FC2')
-		
+	let sources = [
+		new Site('ameburo', 'https://search.ameba.jp/search/{}.html', 'アメブロ'),
+		new Site('fc2', 'https://search.fc2.com/?q={}&n=1&charset=utf-8', 'FC2')	
 	]
 	window.scrollTo = function () {};
 
 	function setSearch(source) {
 
-		var anchor = document.createElement('a');
+		let anchor = document.createElement('a');
 		anchor.setAttribute('name', source.simpleName);
 		main.appendChild(anchor);
 
-		var ifrm = document.createElement('iframe');
+		let ifrm = document.createElement('iframe');
 		ifrm.setAttribute('src', source.buildSearchUrl(word));
 		ifrm.style.width = "100%";
 		ifrm.style.height = "520px";
 		ifrm.onLoad = 'self.scrollTo(0,0)';
 		main.appendChild(ifrm);
 
-		var alink = document.createElement('a');
-		var br = document.createElement('br');
+		let alink = document.createElement('a');
+		let br = document.createElement('br');
 		alink.setAttribute('href', '#' + source.simpleName);
 		alink.text = source.displayName;
 		sn.appendChild(alink);
