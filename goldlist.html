@@ -210,11 +210,14 @@ function checkTyped(){
         const copy = entry['buttonText'];
         a.appendChild(document.createTextNode(copy));
         a.href = entry['link'];
-        if (today > dueDate) {
+        
+        console.log('--- ' + entry['#'])
+        console.log(today);
+        console.log(dueDate);
+        console.log(lastDate);
+        if (today >= dueDate) {
             a.className = 'btn btn-warning shadow stretched-link'
-        } else if (lastDate < today) {
-            console.log(lastDate);
-            console.log(today);
+        } else if (timesStudied > 1 || lastDate < today) {
             a.className = 'btn btn-dark shadow-sm stretched-link'
         } else {
             a.className = 'btn btn-success shadow-sm stretched-link'
