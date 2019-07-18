@@ -43,14 +43,11 @@
             <h2><button type="button" id='topButton' class="btn badge badge-light"></button></h2>
         </nav>
 
-        <div id='infoBox' class='mt-3' style="display:none;">
-        </div>
-
         <div class=' text-center'>
             <img src="/bicycle-1280x720.jpg" class="mt-3 img-fluid rounded-pill" style="max-height: 30%;">
         </div>
 
-        <h2 class='mt-3 text-center'> About Derek</h2>
+        <h2 id='about' class='mt-3 text-center'> About Derek</h2>
         <div class="mt-3 row justify-content-around">
             <div class="col-4 text-center">
                 <button type="button" class="btn btn-dark btn-lg" style="width: 100%;" onclick="Resume()"> Resume
@@ -105,8 +102,7 @@
 </body>
 
 <script>
-    const id = getId();
-    const passId = id != '' ? '?id=' + id : '';
+    
 
     function getId() {
         // location to return to after logging in
@@ -117,6 +113,7 @@
             return null;
         } else {
             topButton.innerText = 'ようこぞ';
+            //DisplayData();
             return decodeURI(location.search.split('id=')[1]);
         }
     }
@@ -152,6 +149,145 @@
     function Notepad() {
         window.location = location.origin + '/notepad.html' + passId;
     }
+
+
+    
+
+    function DisplayData() {
+        let a = document.getElementById('about');
+
+        for (let i = 0; i < data['decks'].length; i++) {
+            const cardDeck = NewCardDeck(data['decks'][i]);
+            a.parentNode.insertBefore(cardDeck, a);
+        }
+    }
+
+    function NewCardDeck(d){
+        const cardDeckContainer = document.createElement('div');
+        const cardDeck = document.createElement('div');
+        cardDeck.id = d['title'];
+        cardDeck.className = 'card-group';
+
+        const deckTitle = document.createElement('h2');
+        deckTitle.appendChild(document.createTextNode(d['title']));
+        deckTitle.className = 'w-100'
+        cardDeck.appendChild(deckTitle);
+        
+
+        for (let i = 0; i < d['cards'].length; i++) {
+            const e = d['cards'][i];
+            const card = NewEntryCard(e['link'],e['btn'],e['text'],e['bdge']);
+            cardDeck.appendChild(card);
+        }
+
+        const b = document.createElement('button');
+        b.appendChild(document.createTextNode('New Note'));
+        b.className = 'btn btn-dark shadow-sm w-100';
+        b.onclick = NewNote;
+
+        cardDeckContainer.appendChild(cardDeck);
+        cardDeckContainer.appendChild(b);
+
+        return cardDeckContainer;
+    }
+
+    function NewNote(){
+        const link = location.origin + '/notepad.html?id=' + id;
+        const btn = 'edit';
+        const text = 'note';
+        const bdge = '';
+        const len = data['decks'][0]['cards'].length;
+
+        data['decks'][0]['cards'][len] = {
+            'link': link,
+            'btn': btn,
+            'text': text,
+            'bdge': bdge
+        }
+
+        document.getElementById('Notes').appendChild(NewEntryCard(link,btn,text,bdge));
+
+        SaveData();
+    }
+
+    function NewEntryCard(link, copy, text, badgeNumber) {
+
+        const card = document.createElement('div');
+        card.className = 'card hover';
+
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        card.append(cardBody);
+
+        const a = document.createElement('a');
+        a.appendChild(document.createTextNode(copy));
+        a.href = link;
+        a.className = 'btn btn-dark shadow-sm stretched-link';
+
+        const s0 = document.createElement('span');
+        s0.className = 'badge pil badge-light text-right ml-2'
+        s0.appendChild(document.createTextNode(badgeNumber));
+        a.appendChild(s0);
+
+        cardBody.appendChild(a);
+        // END BUTTON
+
+        const d1 = document.createElement('div');
+        d1.appendChild(document.createTextNode(text));
+        cardBody.appendChild(d1);
+
+        return card;
+    }
+
+    function GetData() {
+        const xhr = new XMLHttpRequest();
+        const url = redisPath + '?search=data' + id;
+        xhr.open("GET", url);
+        xhr.send();
+        xhr.onreadystatechange = (e) => {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                const value = JSON.parse(xhr.responseText)[id];
+                payload = JSON.parse(value);
+                if(payload != ''){
+                    data = payload;
+                }
+                DisplayData();
+            }
+        }
+    }
+
+    function SaveData() {
+
+        // var url = window.location.origin + '/redis/update';
+        // var xhr = new XMLHttpRequest();
+        // xhr.onreadystatechange = function() {
+        //     if (xhr.readyState == XMLHttpRequest.DONE) {
+        //         id = 'data' + JSON.parse(xhr.response).id;
+        //     }
+        // }
+        // xhr.open("POST", url, true);
+        // xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        // xhr.send(JSON.stringify(data));
+        // console.log(xhr)
+    }
+
+
+
+
+    let data = {
+        'decks':[
+            {
+                'title': 'Notes',
+                'cards': []
+            },
+            {
+                'title': 'Typers',
+                'cards': []
+            }
+        ]
+    };
+    const id = getId();
+    const passId = id != '' ? '?id=' + id : '';
 </script>
 
 </html>
