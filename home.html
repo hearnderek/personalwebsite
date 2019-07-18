@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <title>Derek's</title>
+</head>
+<style type="text/css">
+    html {
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .card {
+        min-width: 15%;
+    }
+
+    .hover {
+        transition: 0.3s;
+    }
+
+    .hover:hover {
+        background-color: silver;
+    }
+
+    .footer {
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 1rem;
+        background-color: #efefef;
+    }
+</style>
+
+<body>
+    <div class="container" style="height: 100vh;">
+        <nav id='titleHr' class="navbar navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Welcome to Derek's</a>
+            <h2><button type="button" id='topButton' class="btn badge badge-light"></button></h2>
+        </nav>
+
+        <div id='infoBox' class='mt-3' style="display:none;">
+        </div>
+
+        <div class=' text-center'>
+            <img src="/bicycle-1280x720.jpg" class="mt-3 img-fluid rounded-pill" style="max-height: 30%;">
+        </div>
+
+        <h2 class='mt-3 text-center'> About Derek</h2>
+        <div class="mt-3 row justify-content-around">
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg" style="width: 100%;" onclick="Resume()"> Resume
+                </button>
+            </div>
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg" style="width: 100%;" onclick="Github()"> Github
+                </button>
+            </div>
+        </div>
+        <div class='text-center'>
+            <img src="/chicago.jpg" class="mt-3 img-fluid rounded-pill"  style="max-height: 30%;">
+        </div>
+
+
+        <h2 class='mt-3 text-center'> Study Tools</h2>
+        <div class="mt-3 row justify-content">
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg" style="width: 100%;" onclick="Goldlist()"> Gold List
+                </button>
+            </div>
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg" style="width: 100%;" onclick="KanjiTyper()"> Kanji
+                    Typer </button>
+            </div>
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg" style="width: 100%;" onclick="Multiview()">
+                    Multi-Search </button>
+            </div>
+        </div>
+        <div class="mt-3 row justify-content">
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg" style="width: 100%;" onclick="ExampleSentences()">
+                    Example Sentences </button>
+            </div>
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg" style="width: 100%;" onclick="Notepad()"> Notepad
+                </button>
+            </div>
+        </div>
+
+
+        <footer class="footer mt-3 font-weight-light">
+            <img src="/favicon-32x32.png" class="img-fluid rounded-sm float-right">
+            <div class="pr-xl-4">
+                <h6>About this page</h6>
+                <p>Hey! Thanks for giving this site a visit!</p>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+<script>
+    const id = getId();
+    const passId = id != '' ? '?id=' + id : '';
+
+    function getId() {
+        // location to return to after logging in
+        let topButton = document.getElementById('topButton');
+        if (location.search.indexOf('id=') == -1) {
+            topButton.innerText = 'Login';
+            topButton.onclick = Login;
+            return null;
+        } else {
+            topButton.innerText = 'ようこぞ';
+            return decodeURI(location.search.split('id=')[1]);
+        }
+    }
+
+    function Login() {
+        window.location = 'https://' + location.host + '/login.html?p0=' + location.origin + '/home.html'
+    }
+
+    function Resume() {
+        window.location = 'https://www.linkedin.com/in/derekhearn/';
+    }
+
+    function Github() {
+        window.location = 'https://github.com/hearnderek';
+    }
+
+    function Goldlist() {
+        window.location = location.origin + '/goldlist.html' + passId;
+    }
+
+    function KanjiTyper() {
+        window.location = location.origin + '/kanjityper.html' + passId;
+    }
+
+    function Multiview() {
+        window.location = location.origin + '/multiview.html' + passId;
+    }
+
+    function ExampleSentences() {
+        window.location = location.origin + '/example-sentences.html' + passId;
+    }
+
+    function Notepad() {
+        window.location = location.origin + '/notepad.html' + passId;
+    }
+</script>
+
+</html>
