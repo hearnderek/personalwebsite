@@ -62,25 +62,30 @@
 
         </nav>
 
-        <div id='infoBox' class='mt-3' style="display:none;">
-        </div>
+
 
         <div id='entry' class='switchFrame mt-3'>
             <h2>New Entry</h2>
-            <form id='addForm' class='mt-3' onsubmit="return AddWord()">
+            <form id='addForm' class='mt-3' onsubmit="return addWord()">
                 <h2 id='numberOfEntries' class='mx-auto text-center'></h2>
                 <input id='addInMe' class='text-center' style='width:100%; font-size:2em;'></textarea>
             </form>
             <div class="mt-3 row justify-content-around">
                 <div class="col-4 text-center">
-                    <button type="button" class="btn btn-success btn-lg" style="width: 100%;" onclick="SubmitEntryForm()">
+                    <button type="button" class="btn btn-success btn-lg" style="width: 100%;"
+                        onclick="submitEntryForm()">
                         Submit
                     </button>
                 </div>
             </div>
         </div>
 
+
+
         <div id='study' class='switchFrame mt-3'>
+
+            <div id='infoBox' class='mt-3' style="display:none;"></div>
+
             <h2>Get Typing</h2>
 
             <form id='typeForm' class='mt-3' onsubmit="return checkTyped()">
@@ -95,7 +100,8 @@
                     </button>
                 </div>
                 <div class="col-4 text-center">
-                    <button type="button" class="btn btn-success btn-lg" style="width: 100%;" onclick="SubmitTypedForm()">
+                    <button type="button" class="btn btn-success btn-lg" style="width: 100%;"
+                        onclick="SubmitTypedForm()">
                         OK
                     </button>
                 </div>
@@ -107,22 +113,27 @@
             </div>
         </div>
 
+
+
         <div id='direct' class='switchFrame mt-3'>
             <h2>The Data</h2>
 
             <div class="mt-3 row justify-content-around">
                 <div class="col-4 text-center">
-                    <button type="button" class="btn btn-success btn-lg" style="width: 100%;" onclick="saveTextArea()"> Save
+                    <button type="button" class="btn btn-success btn-lg" style="width: 100%;" onclick="saveTextArea()">
+                        Save
                     </button>
                 </div>
             </div>
 
-            <textarea id="myTextArea" name="S1" autofocus="" class="mt-3 notes" spellcheck="false">
+            <textarea id="myTextArea" name="S1" autofocus="" class="mt-3 notes" spellcheck="false"
+                onkeydown="autosize()">
             </textarea>
 
             <div class="mt-3 row justify-content-around">
                 <div class="col-4 text-center">
-                    <button type="button" class="btn btn-success btn-lg" style="width: 100%;" onclick="saveTextArea()"> Save
+                    <button type="button" class="btn btn-success btn-lg" style="width: 100%;" onclick="saveTextArea()">
+                        Save
                     </button>
                 </div>
             </div>
@@ -140,22 +151,29 @@
 </body>
 
 <script>
-    const textArea = document.getElementById('myTextArea');
-    const typeForm = document.getElementById('typeForm');
-    const typeMe = document.getElementById('typeMe');
-    const typeInMe = document.getElementById('typeInMe');
-    const titleHr = document.getElementById('titleHr');
-    const infoBox = document.getElementById('infoBox');
-    const addInMe = document.getElementById('addInMe');
-    const addForm = document.getElementById('addForm');
+    const g_textArea = document.getElementById('myTextArea');
+    const g_typeForm = document.getElementById('typeForm');
+    const g_typeMe = document.getElementById('typeMe');
+    const g_typeInMe = document.getElementById('typeInMe');
+    const g_infoBox = document.getElementById('infoBox');
+    const g_addInMe = document.getElementById('addInMe');
+    const g_addForm = document.getElementById('addForm');
+    const g_switchForms = document.getElementsByClassName('switchFrame');
+
+    const HAD_ID = 0
+    const NEW_ID = 1
+
+
+    let g_dataId = decodeURI(location.search.split('id=')[1]);
 
     //example data
-    let sorted = [
+    let g_wordIndex = -1;
+    let g_sorted = [
         [3, 1],
         [1, 5],
         [2, 13]
     ]
-    let words = [
+    let g_words = [
         ['預かる', 0],
         ['埋める', 0],
         ['敬う', 0],
@@ -168,176 +186,205 @@
         ['踊る', 0]
     ]
 
-    const switchForms = document.getElementsByClassName('switchFrame');
+    function main() {
+        display('study');
+        let idInfo = ensureId();
+        if (idInfo == HAD_ID) {
+            getInitialData();
+        } else {
+            getNewId();
+        }
+    }
 
-    function display(switchFrameId) {
-        for (let i = 0; i < switchForms.length; i++) {
-            const f = switchForms[i];
-            if(f.id == switchFrameId) {
-                f.style='';
-            } else {
-                f.style='display: None;';
+    function getNewId() {
+        const xhr = new XMLHttpRequest();
+        const url = window.location.origin + '/redis/new';
+        xhr.open("GET", url);
+        xhr.send();
+
+        xhr.onreadystatechange = (e) => {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                g_dataId = xhr.responseText;
+                window.location.href += '?id=' + g_dataId
+                getInitialData();
             }
         }
-        autosizeElement(textArea);
     }
-    display('study');
 
-    
-    let wordIndex = -1;
-    let today = new Date();
-    const id = decodeURI(location.search.split('id=')[1]);
-    today.setHours(0, 0, 0, 0);
+    function ensureId() {
+        if (g_dataId == null || g_dataId == "undefined") {
+            return NEW_ID;
+        }
 
-    function SetWordsInitial(newWords){
-        words = newWords;
+        return HAD_ID;
+    }
 
-        sorted = words.map((xs, i) => [i, xs[1]])
+    function display(switchFrameId) {
+        for (let i = 0; i < g_switchForms.length; i++) {
+            const f = g_switchForms[i];
+            if (f.id == switchFrameId) {
+                f.style = '';
+            } else {
+                f.style = 'display: None;';
+            }
+        }
+        autosizeElement(g_textArea);
+    }
+
+    function setWordsInitial(newWords) {
+        g_words = newWords;
+
+        g_sorted = g_words.map((xs, i) => [i, xs[1]])
             .map(ys => [ys[0], +(ys[1] || 0)])
             .sort((l, r) => l[1] - r[1]);
 
-        wordIndex = -1;
+        g_wordIndex = -1;
         nextWord();
     }
 
-    function GetInitialData(){
+    function getSortedWordIndex() {
+        return g_sorted[g_wordIndex][0];
+    }
+
+    function getCurrentWord(){
+        return g_words[getSortedWordIndex()][0];
+    }
+
+    function getInitialData() {
         const xhr = new XMLHttpRequest();
-        const url = location.origin + '/' + 'redis/' + '?search=' + id;
+        const url = location.origin + '/' + 'redis/' + '?search=' + g_dataId;
         xhr.open("GET", url);
         xhr.send();
 
         let payload = '';
         xhr.onreadystatechange = (e) => {
             if (xhr.readyState == XMLHttpRequest.DONE) {
-                payload = JSON.parse(xhr.responseText)[id];
-
-                //words = textWords(payload);
+                payload = JSON.parse(xhr.responseText)[g_dataId];
+                if(payload != ''){
+                    g_words = textWords(payload);
+                }
                 updateTextAreaText();
-                
-                
-                SetWordsInitial(words);
+                setWordsInitial(g_words);
             }
-        }   
+        }
     }
-    GetInitialData();
+
 
     function nextWord() {
-        wordIndex++;
-        typeMe.innerText = words[sorted[wordIndex][0]][0];
-        typeForm.reset();
+        g_wordIndex++;
+        g_typeMe.innerText = getCurrentWord();
+        g_typeForm.reset();
 
-        infoBox.innerHTML = '';
-        infoBox.style = 'display:none;';
+        g_infoBox.innerHTML = '';
+        g_infoBox.style = 'display:none;';
     }
 
     function wordsText() {
-        return words.map(xs => xs.join("\t")).join("\n");
+        return g_words.map(xs => xs.join("\t")).join("\n");
     }
 
     function textWords(s) {
-        return s.split("\n").map(xs => xs.split("\t"));
+        return s.split("\n")
+            .map(xs => xs.split("\t"))
+            .map(xs => {
+                    // numerical value of xs[1] else default to 0
+                    xs[1] = +(xs[1]||0);
+                    return xs;
+                });
+    }
+
+    function saveWords() {
+        let data = {}
+        if (g_dataId != null) {
+            data.key = g_dataId;
+        }
+        data.payload = wordsText();
+        let jsonPackage = JSON.stringify(data);
+
+        var url = window.location.origin + '/redis/update';
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                console.log(JSON.parse(xhr.response).id);
+            }
+        }
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        xhr.send(JSON.stringify(data));
+        console.log('save')
     }
 
     function saveTyped() {
-        let data = {}
-        if (id != null) {
-            data.key = id;
-        }
-        data.payload = wordsText();
-        let jsonPackage = JSON.stringify(data);
         updateTextAreaText();
-
-        // var url = window.location.origin + '/redis/update';
-        // var xhr = new XMLHttpRequest();
-        // xhr.onreadystatechange = function () {
-        //     if (xhr.readyState == XMLHttpRequest.DONE) {
-        //         console.log(JSON.parse(xhr.response).id);
-        //     }
-        // }
-        // xhr.open("POST", url, true);
-        // xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-        // xhr.send(JSON.stringify(data));
-        // console.log(xhr)
-        console.log('fake save 1')
+        saveWords();
     }
 
     function saveTextArea() {
-        let data = {}
-        if (id != null) {
-            data.key = id;
-        }
-        data.payload = wordsText();
-        let jsonPackage = JSON.stringify(data);
-        SetWordsInitial(textWords(textArea.value))
-
-
-        // var url = window.location.origin + '/redis/update';
-        // var xhr = new XMLHttpRequest();
-        // xhr.onreadystatechange = function () {
-        //     if (xhr.readyState == XMLHttpRequest.DONE) {
-        //         console.log(JSON.parse(xhr.response).id);
-        //     }
-        // }
-        // xhr.open("POST", url, true);
-        // xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-        // xhr.send(JSON.stringify(data));
-        // console.log(xhr)
-        console.log('fake save 2')
+        setWordsInitial(textWords(g_textArea.value))
+        saveWords();
     }
 
     function checkTyped() {
-        console.log(typeInMe.value)
-        if (typeInMe.value == words[sorted[wordIndex][0]][0]) {
-            if (infoBox.innerHTML == '') {
-                if (words[sorted[wordIndex][0]].length == 3) {
-                    words[sorted[wordIndex][0]][1] = 0;
-                }
+        console.log(g_typeInMe.value)
+        let correct = g_typeInMe.value == getCurrentWord();
+            
+        // learning algo ideas
+        // 1 : 0 -- missed values only need one successful review
+        // 2 : 1 -- priortizes seeing new words, gives value to studying a word.
+        // 1 : -1 -- failing requires two successful reviews
+        // 2 : -1 -- prioritizes missed words, failing requires one successful review to progess
+        // 3 : -1 -- "", words failed twice will appear before words failed once in queue
+        let noHelpInc = 3;
+        let withHelpInc = -1;
+        let incorrectInc = -1;
 
-                words[sorted[wordIndex][0]][1] = +words[sorted[wordIndex][0]][1] + 1;
-                console.log(words[sorted[wordIndex][0]]);
 
-                saveTyped();
-            }
-            nextWord()
+        let gotHelp = g_infoBox.innerHTML != '';
+        let oldWeight = g_words[getSortedWordIndex()][1];
 
+        let inc = correct ? (gotHelp ? withHelpInc : noHelpInc) : incorrectInc;
+        g_words[getSortedWordIndex()][1] = oldWeight + inc;
+        
+        console.log(g_words[getSortedWordIndex()]);
+        if(g_words[getSortedWordIndex()][1] != oldWeight) {
+            saveTyped();
         }
+
+        if(correct) {
+            nextWord()
+        }
+
 
         // keeps the page from refreshing when used with the form's onsumbit event
         return false;
     }
 
     function setSearch(url, name) {
-        infoBox.innerHTML = '';
-        infoBox.style = 'height:70%;';
+        g_infoBox.innerHTML = '';
+        g_infoBox.style = 'height:26em;';
 
         const ifrm = document.createElement('iframe');
         ifrm.setAttribute('src', url);
         ifrm.style.width = "100%";
         ifrm.style.height = "100%";
         ifrm.onLoad = 'self.scrollTo(0,0)';
-        infoBox.appendChild(ifrm);
+        g_infoBox.appendChild(ifrm);
     }
 
     function searchMeaning() {
-        console.log('Meaning of ' + words[sorted[wordIndex][0]][0].toLowerCase());
-        setSearch('https://www.weblio.jp/content/' + (words[sorted[wordIndex][0]][0]).toLowerCase(), 'Weblio');
+        console.log('Meaning of ' + getCurrentWord().toLowerCase());
+        setSearch('https://www.weblio.jp/content/' + (getCurrentWord()).toLowerCase(), 'Weblio');
     }
 
     function SearchExamples() {
-        console.log('Examples of ' + words[sorted[wordIndex][0]][0].toLowerCase());
-        setSearch(location.origin + '/example-sentences.html?Search=' + (words[sorted[wordIndex][0]][0]).toLowerCase(), 'Weblio');
+        console.log('Examples of ' + getCurrentWord().toLowerCase());
+        setSearch(location.origin + '/example-sentences.html?Search=' + (getCurrentWord()).toLowerCase(),
+            'Weblio');
     }
 
-
-
-
-
-    
-    textArea.addEventListener('keydown', autosize);
-
     function updateTextAreaText() {
-        textArea.value = wordsText();
-        autosizeElement(textArea);
+        g_textArea.value = wordsText();
+        autosizeElement(g_textArea);
     }
 
     function autosizeElement(el) {
@@ -357,15 +404,18 @@
         autosizeElement(el);
     }
 
-    function AddWord() {
-        words.push([addInMe.value,0]);
+    function addWord() {
+        g_words.push([g_addInMe.value, 0]);
         updateTextAreaText();
+        return false;
     }
 
-    function SubmitEntryForm() {
-        AddWord();
-        addForm.reset();
+    function submitEntryForm() {
+        addWord();
+        g_addForm.reset();
     }
+
+    main();
 </script>
 
 
