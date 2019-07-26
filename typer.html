@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://rawgit.com/notifyjs/notifyjs/master/dist/notify.js"></script>
     <title>Typer</title>
 </head>
 <style type="text/css">
@@ -66,9 +67,9 @@
 
         <div id='entry' class='switchFrame mt-3'>
             <h2>New Entry</h2>
-            <form id='addForm' class='mt-3' onsubmit="return addWord()">
+            <form autocomplete="off"  id='addForm' class='mt-3' onsubmit="return addWord()">
                 <h2 id='numberOfEntries' class='mx-auto text-center'></h2>
-                <input id='addInMe' class='text-center' style='width:100%; font-size:2em;'></textarea>
+                <input autocomplete="off" id='addInMe' class='text-center' style='width:100%; font-size:2em;'></input>
             </form>
             <div class="mt-3 row justify-content-around">
                 <div class="col-4 text-center">
@@ -88,9 +89,9 @@
 
             <h2>Get Typing</h2>
 
-            <form id='typeForm' class='mt-3' onsubmit="return checkTyped()">
+            <form autocomplete="off" id='typeForm' class='mt-3' onsubmit="return checkTyped()">
                 <h2 id='typeMe' class='mx-auto text-center'></h2>
-                <input id='typeInMe' class='text-center' style='width:100%; font-size:2em;'></textarea>
+                <input autocomplete="off" id='typeInMe' class='text-center' style='width:100%; font-size:2em;'></textarea>
             </form>
 
 
@@ -163,8 +164,20 @@
     const HAD_ID = 0
     const NEW_ID = 1
 
+    const g_notifyOption = { position:"bottom right"}
+    $.notify.defaults({ className: "success" });
 
     let g_dataId = decodeURI(location.search.split('id=')[1]);
+    let g_today = new Date();
+    g_today.setHours(0,0,0,0);
+    let g_yesterday = new Date();
+    g_yesterday.setHours(0,0,0,0);
+    g_yesterday.setDate(g_yesterday.getDate() - 1);
+    let g_randomOldDate = new Date('2000/01/01');
+    g_randomOldDate.setHours(0,0,0,0);
+
+
+
 
     //example data
     let g_wordIndex = -1;
@@ -231,18 +244,35 @@
         autosizeElement(g_textArea);
     }
 
+    function getSorted(){
+        return g_words.map((xs, i) => [i, xs[1]])
+            .map(ys => [ys[0], +(ys[1] || 0)])
+            .sort((l, r) => l[1] - r[1]);
+    }
+
+    function resortWords(){
+        g_sorted = getSorted();
+        
+        g_wordIndex = -1;
+        nextWord();
+    }
+
     function setWordsInitial(newWords) {
         g_words = newWords;
 
-        g_sorted = g_words.map((xs, i) => [i, xs[1]])
-            .map(ys => [ys[0], +(ys[1] || 0)])
-            .sort((l, r) => l[1] - r[1]);
+        g_sorted = getSorted();
 
         g_wordIndex = -1;
         nextWord();
     }
 
     function getSortedWordIndex() {
+        if(g_wordIndex >= g_sorted.length){
+            resortWords();
+            $.notify("Completed All Entries", g_notifyOption);
+            $.notify("Starting Over", g_notifyOption);
+        }
+
         return g_sorted[g_wordIndex][0];
     }
 
@@ -280,7 +310,8 @@
     }
 
     function wordsText() {
-        return g_words.map(xs => xs.join("\t")).join("\n");
+        return g_words //.map(xs=>{xs[2].toLocaleDateString();return xs;})
+            .map(xs => xs.join("\t")).join("\n");
     }
 
     function textWords(s) {
@@ -289,6 +320,19 @@
             .map(xs => {
                     // numerical value of xs[1] else default to 0
                     xs[1] = +(xs[1]||0);
+
+                    // let d = new Date(dateStr);
+                    // let weight = xs[1];
+                    // if ( d.toString() == 'Invalid Date' ) {
+                    //     if(weight != 0) {
+                    //         d = g_yesterday;
+                    //     } else {
+                    //         d = g_randomOldDate;
+                    //     }
+                    // }
+
+                    // xs[2] = d;
+
                     return xs;
                 });
     }
@@ -306,12 +350,12 @@
         xhr.onreadystatechange = function () {
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 console.log(JSON.parse(xhr.response).id);
+                $.notify("Saved", g_notifyOption);
             }
         }
         xhr.open("POST", url, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
         xhr.send(JSON.stringify(data));
-        console.log('save')
     }
 
     function saveTyped() {
@@ -322,6 +366,11 @@
     function saveTextArea() {
         setWordsInitial(textWords(g_textArea.value))
         saveWords();
+    }
+
+    function SubmitTypedForm() {
+        checkTyped();
+        g_typeForm.reset();
     }
 
     function checkTyped() {
@@ -406,13 +455,14 @@
 
     function addWord() {
         g_words.push([g_addInMe.value, 0]);
+        $.notify("Added: " + g_addInMe.value, g_notifyOption);
         updateTextAreaText();
+        g_addForm.reset();
         return false;
     }
 
     function submitEntryForm() {
         addWord();
-        g_addForm.reset();
     }
 
     main();

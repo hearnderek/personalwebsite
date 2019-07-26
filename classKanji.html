@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <title>Study Kanji</title>
+</head>
+<style type="text/css">
+    html {
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .nowrap {
+        white-space: nowrap;
+    }
+
+    .card {
+        min-width: 15%;
+    }
+
+    .hover {
+        transition: 0.3s;
+    }
+
+    .hover:hover {
+        background-color: silver;
+    }
+
+    .footer {
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 1rem;
+        background-color: #efefef;
+    }
+</style>
+
+<body>
+    <div class="container" style="height: 100vh;">
+        <nav id='titleHr' class="navbar navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Study Them Kanji</a>
+            <h2><button type="button" id='topButton' class="btn badge badge-light"></button></h2>
+        </nav>
+
+        <div class='mt-3 text-center' style='height:20em'>
+            <img src="/dontgiveupdoggo.jpeg" class="img-responsive border-dark" style="max-width: 100%;height: inherit;border-style: solid;border-width: 1em;">
+        </div>
+
+        <h2 id='about' class='mt-3 text-center'> Reading Tests</h2>
+        <div class="mt-3 row justify-content-around">
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg nowrap" style="width: 100%;" onclick="SmallTest('r10')"> 7月26日
+                </button>
+            </div>
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg nowrap" style="width: 100%;" onclick="SmallTest('r11')"> 7月30日
+                </button>
+            </div>
+        </div>
+        
+        <h2 id='about' class='mt-3 text-center'> Writing Tests</h2>
+        <div class="mt-3 row justify-content-around">
+            <div class="col-4 text-center">
+                <button type="button" class="btn btn-dark btn-lg nowrap" style="width: 100%;" onclick="SmallTest('w4b')"> 7月29日
+                </button>
+            </div>
+        </div>
+
+
+        <footer class="footer mt-3 font-weight-light">
+            <img src="/favicon-32x32.png" class="img-fluid rounded-sm float-right">
+            <div class="pr-xl-4">
+                <h6>About this page</h6>
+                <p>Hey! Thanks for giving this site a visit!</p>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+<script>
+    
+
+    function getId() {
+        // location to return to after logging in
+        if (location.search.indexOf('id=') == -1) {
+            return 'deadbeef';
+        } else {
+            return decodeURI(location.search.split('id=')[1]);
+        }
+    }
+
+    function SmallTest(number) {
+        window.location = location.origin + '/typer.html' + g_passId + '-' + number;
+    }
+
+    const g_id = getId();
+    const g_passId = '?id=' + g_id;
+</script>
+
+</html>
