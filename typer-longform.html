@@ -427,14 +427,14 @@
         let gotHelp = g_infoBox.innerHTML != '';
         let oldWeight = g_words[getSortedWordIndex()][1];
 
-        let inc = correct ? (gotHelp ? withHelpInc : noHelpInc) : incorrectInc;
+        //let inc = correct ? (gotHelp ? withHelpInc : noHelpInc) : incorrectInc;
 
         if (correct) {
             let continuation = g_displayedWords.substring(testVal.length);
             if(continuation) {
                 setTyping(continuation);
             } else {
-                g_words[getSortedWordIndex()][1] = oldWeight + inc;
+                g_words[getSortedWordIndex()][1] = oldWeight + (gotHelp ? withHelpInc : noHelpInc);
                 saveTyped();
                 nextWord();
             }
@@ -451,7 +451,8 @@
             errorMessage = correctVal.substring(i,j) + ' != ' + testVal.substring(i,j);
         
             $.notify(errorMessage, 'warning');
-            g_words[getSortedWordIndex()][1] = oldWeight + inc;
+        
+            g_words[getSortedWordIndex()][1] = oldWeight + incorrectInc;
             if (g_words[getSortedWordIndex()][1] != oldWeight) {
                 saveTyped();
             }
