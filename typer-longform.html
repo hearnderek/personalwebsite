@@ -427,13 +427,14 @@
             let errorMessage = ''
             if(correctVal.length != testVal.length) {
                 errorMessage = 'input is a different length than expected'
-            } else {   
-                let i = 0;
-                for (; i < correctVal.length && correctVal[i] == testVal[i]; i++) {}
-                let j = i+1;
-                for (; j < correctVal.length && correctVal[j] != testVal[j]; j++) {}
-                errorMessage = correctVal.substring(i,j) + ' != ' + testVal.substring(i,j);
-            }
+            } 
+            
+            let i = 0;
+            for (; i < correctVal.length && correctVal[i] == testVal[i]; i++) {}
+            let j = i+1;
+            for (; j < correctVal.length && correctVal[j] != testVal[j]; j++) {}
+            errorMessage = correctVal.substring(i,j) + ' != ' + testVal.substring(i,j);
+        
             $.notify(errorMessage, 'warning');
         }
 
