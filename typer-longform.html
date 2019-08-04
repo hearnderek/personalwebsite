@@ -94,14 +94,18 @@
 
             <div id='infoBox' class='mt-3' style="display:none;"></div>
 
-            <h2>Get Typing <span id='percentDone' class="badge badge-secondary">0%</span> </h2>
+            <h2>
+                Get Typing 
+                <span id='percentDone' class="badge badge-secondary">0%</span> 
+                <span id='totalPercentDone' class="badge badge-dark">0%</span>
+            </h2>
 
-            <form autocomplete="off" id='typeForm' class='mt-3' onsubmit="return checkTyped()">
+            <form autocomplete="off" id='typeForm' class='mt-3' onsubmit="return SubmitTypedForm()">
                 <h2 id='typeMe' class='mx-auto text-justified truncate'></h2>
-                <textarea autocomplete="off" 
+                <input autocomplete="off" 
                     id='typeInMe' 
                     class='text-justified'
-                    style='width:100%; font-size:2em;'></textarea>
+                    style='width:100%; font-size:2em;'>
             </form>
 
 
@@ -184,6 +188,7 @@
     const g_addForm = document.getElementById('addForm');
     const g_switchForms = document.getElementsByClassName('switchFrame');
     const g_percentDone = document.getElementById('percentDone');
+    const g_totalPercentDone = document.getElementById('totalPercentDone');
 
 
     const HAD_ID = 0
@@ -337,6 +342,7 @@
         let cw = getCurrentWord();
         g_currentWords = cw;
         setTyping(g_currentWords)
+        g_totalPercentDone.innerText = g_wordIndex + '/' + g_sorted.length;
 
         g_typeForm.reset();
 
@@ -396,7 +402,7 @@
     function saveTyped() {
         updateTextAreaText();
         saveWords();
-    }
+    }   
 
     function saveTextArea() {
         setWordsInitial(textWords(g_textArea.value))
@@ -406,6 +412,7 @@
     function SubmitTypedForm() {
         checkTyped();
         g_typeForm.reset();
+        return false;
     }
 
     function checkTyped() {
@@ -482,6 +489,9 @@
 
     function searchMeaning() {
         let w = g_typeSearchInMe.value;
+        if(!w){
+            w = g_typeSearchInMe.value = getCurrentWord()
+        }
         console.log('Meaning of ' + w.toLowerCase());
         setSearch('https://www.weblio.jp/content/' + w.toLowerCase(), 'Weblio');
         return false;
@@ -489,6 +499,9 @@
 
     function searchEnglish() {
         let w = g_typeSearchInMe.value;
+        if(!w){
+            w = g_typeSearchInMe.value = getCurrentWord()
+        }
         setSearch('https://jisho.org/search/' + w.toLowerCase(), 'Jisho')
     }
 
