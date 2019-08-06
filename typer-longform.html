@@ -63,8 +63,9 @@
         <nav id='titleHr' class="navbar navbar-dark bg-dark">
             <a class="navbar-brand" href="#">Typer</a>
             <form class="form-inline">
-                <button type="button" class='btn btn-light' onclick="display('entry')">Entry</button>
-                <button type="button" class='btn btn-light ml-2' onclick="display('study')">Study</button>
+                <button type="button" class='btn btn-light'      onclick="display('entry')"> Entry </button>
+                <button type="button" class='btn btn-light ml-2' onclick="display('edit')">  Edit  </button>
+                <button type="button" class='btn btn-light ml-2' onclick="display('study')"> Study </button>
                 <button type="button" class='btn btn-light ml-2' onclick="display('direct')">Direct</button>
             </form>
 
@@ -80,7 +81,9 @@
             </form>
             <div class="mt-3 row justify-content-around">
                 <div class="col-4 text-center">
-                    <button type="button" class="btn btn-success btn-lg" style="width: 100%;"
+                    <button type="button" 
+                        class="btn btn-success btn-lg" 
+                        style="width: 100%;"
                         onclick="submitEntryForm()">
                         Submit
                     </button>
@@ -88,7 +91,25 @@
             </div>
         </div>
 
-
+        <div id='edit' class='switchFrame mt-3'>
+            <h2>Edit Entry</h2>
+            <form autocomplete="off" id='editForm' class='mt-3' onsubmit="return editWord()">
+                <input autocomplete="off" 
+                    id='editInMe' 
+                    class='text-center' 
+                    style='width:100%; font-size:2em;'></input>
+            </form>
+            <div class="mt-3 row justify-content-around">
+                <div class="col-4 text-center">
+                    <button type="button" 
+                        class="btn btn-success btn-lg" 
+                        style="width: 100%;"
+                        onclick="submitEditEntryForm()">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <div id='study' class='switchFrame mt-3'>
 
@@ -197,6 +218,10 @@
     const g_infoBox = document.getElementById('infoBox');
     const g_addInMe = document.getElementById('addInMe');
     const g_addForm = document.getElementById('addForm');
+
+    const g_editInMe = document.getElementById('editInMe');
+    const g_editForm = document.getElementById('editForm');
+
     const g_switchForms = document.getElementsByClassName('switchFrame');
     const g_percentDone = document.getElementById('percentDone');
     const g_totalPercentDone = document.getElementById('totalPercentDone');
@@ -347,15 +372,21 @@
         }
     }
 
+    function displayCurrentWord() {
+        g_currentWords = getCurrentWord();
 
-    function nextWord() {
-        g_wordIndex++;
-        let cw = getCurrentWord();
-        g_currentWords = cw;
         setTyping(g_currentWords);
+        g_editInMe.value = g_currentWords;
+
         g_totalPercentDone.innerText = g_wordIndex + '/' + g_sorted.length;
 
         g_typeForm.reset();
+    }
+
+    function nextWord() {
+        g_wordIndex++;
+        
+        displayCurrentWord();
 
         g_infoBox.innerHTML = '';
         g_infoBox.style = 'display:none;';
@@ -562,8 +593,28 @@
         return false;
     }
 
+    function editWord() {
+        
+        g_words[getSortedWordIndex()][0] = g_editInMe.value
+        
+        displayCurrentWord();
+        updateTextAreaText();
+
+        display('study')
+        $.notify("Edited entry", g_notifyOption);
+        saveWords();
+
+        return false;
+    }
+
     function submitEntryForm() {
         addWord();
+        return false;
+    }
+
+    function submitEditEntryForm() {
+        editWord();
+        return false;
     }
 
     main();
