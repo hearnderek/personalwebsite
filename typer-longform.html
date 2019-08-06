@@ -165,6 +165,29 @@
                     </button>
                 </div>
             </div>
+
+            
+            <h4 class='mt-3 mx-auto text-center'> Change Study Order </h4>
+            <div class="mt-3 row justify-content-around">
+                <div class="col-4 text-center">
+                    <button type="button" class="btn btn-dark btn-lg" style="width: 100%;"
+                        onclick="naturalOrder()">
+                        Natural
+                    </button>
+                </div>
+                <div class="col-4 text-center">
+                    <button type="button" class="btn btn-dark btn-lg" style="width: 100%;"
+                        onclick="sortedOrder()">
+                        Sorted
+                    </button>
+                </div>
+                <div class="col-4 text-center">
+                    <button type="button" class="btn btn-dark btn-lg" style="width: 100%;"
+                        onclick="randomOrder()">
+                        Random
+                    </button>
+                </div>
+            </div>
         </div>
 
 
@@ -329,18 +352,31 @@
             .sort((l, r) => l[1] - r[1]);
     }
 
+    function getNatural() {
+        return g_words.map((xs, i) => [i, xs[1]])
+            .map(ys => [ys[0], +(ys[1] || 0)]);
+    }
+
+    function getRandom() {
+        return g_words.map((xs, i) => [i, xs[1]])
+            .map(ys => [ys[0], +(ys[1] || 0)])
+            .sort((_, __) => Math.random() - Math.random());
+    }
+
     function resortWords() {
         g_sorted = getSorted();
 
-        g_wordIndex = -1;
-        nextWord();
+        startStudy();
     }
 
     function setWordsInitial(newWords) {
         g_words = newWords;
-
         g_sorted = getSorted();
 
+        startStudy();
+    }
+
+    function startStudy(){
         g_wordIndex = -1;
         nextWord();
     }
@@ -464,6 +500,21 @@
             .map(i=>g_words[i]));
         updateTextAreaText();
         
+    }
+
+    function naturalOrder() {
+        g_sorted = getNatural();
+        startStudy();
+    }
+
+    function randomOrder() {
+        g_sorted = getRandom();
+        startStudy();
+    }
+
+    function sortedOrder() {
+        g_sorted = getSorted();
+        startStudy();
     }
 
     function sortTextArea() {
